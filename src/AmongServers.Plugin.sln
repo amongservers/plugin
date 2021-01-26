@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmongServers.Plugin", "AmongServers.Plugin\AmongServers.Plugin.csproj", "{2E0D7146-798E-4ED3-852A-968F8B3041A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E0D7146-798E-4ED3-852A-968F8B3041A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E0D7146-798E-4ED3-852A-968F8B3041A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E0D7146-798E-4ED3-852A-968F8B3041A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E0D7146-798E-4ED3-852A-968F8B3041A4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C8DB33D-00EC-4241-AEA3-C7D7E297584E}
+	EndGlobalSection
+EndGlobal
