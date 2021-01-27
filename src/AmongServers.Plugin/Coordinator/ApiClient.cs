@@ -37,7 +37,7 @@ namespace AmongServers.Plugin.Coordinator
         /// <returns></returns>
         public async Task HeartbeatAsync(HeartbeatEntity entity, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage responseMessage = await _client.PostAsync($"heartbeat", new StringContent(JsonSerializer.Serialize(entity), Encoding.UTF8), cancellationToken);
+            HttpResponseMessage responseMessage = await _client.PostAsync($"heartbeat", new StringContent(JsonSerializer.Serialize(entity), Encoding.UTF8, "application/json"), cancellationToken);
 
             if (responseMessage.IsSuccessStatusCode) {
                 responseMessage.Dispose();
