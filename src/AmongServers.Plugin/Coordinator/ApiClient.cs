@@ -41,6 +41,7 @@ namespace AmongServers.Plugin.Coordinator
 
             if (responseMessage.IsSuccessStatusCode) {
                 responseMessage.Dispose();
+                return;
             } else {
                 throw new Exception($"The service returned an error: {responseMessage.StatusCode}");
             }
