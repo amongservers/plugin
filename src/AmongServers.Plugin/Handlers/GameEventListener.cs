@@ -28,7 +28,7 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnGameCreated(IGameCreatedEvent e)
         {
-            //TODO: created game
+            _heartbeat.AttachGame(e.Game);
             _heartbeat.TryHeartbeat();
             return default;
         }
@@ -40,7 +40,6 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnGameStarted(IGameStartedEvent e)
         {
-            _heartbeat.AttachGame(e.Game);
             _heartbeat.TryHeartbeat();
             return default;
         }
