@@ -88,6 +88,9 @@ namespace AmongServers.Plugin
                             NumImposters = s.Options.NumImpostors,
                             MaxPlayers = s.Options.MaxPlayers,
                             CountPlayers = s.PlayerCount,
+                            HostPlayer = s.IsPublic && s.Host != null ? new PlayerEntity() {
+                                Name = s.Host.Character.PlayerInfo.PlayerName
+                            } : null,
                             Players = s.IsPublic && s.Players != null ? s.Players.Select(p => new PlayerEntity() {
                                 Name = p.Character.PlayerInfo.PlayerName
                             }).ToArray() : Array.Empty<PlayerEntity>()

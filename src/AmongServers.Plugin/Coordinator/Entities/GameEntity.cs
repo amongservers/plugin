@@ -52,7 +52,7 @@ namespace AmongServers.Plugin.Coordinator.Entities
         /// The game host, this will be null if the game is private.
         /// </summary>
         [JsonPropertyName("hostPlayer")]
-        public PlayerEntity Host { get; set; }
+        public PlayerEntity HostPlayer { get; set; }
 
         /// <summary>
         /// The players, this array will be empty if the game is private.
