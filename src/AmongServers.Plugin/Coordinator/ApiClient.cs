@@ -40,7 +40,7 @@ namespace AmongServers.Plugin.Coordinator
             HttpResponseMessage responseMessage = await _client.PostAsync($"heartbeat", new StringContent(JsonSerializer.Serialize(entity), Encoding.UTF8), cancellationToken);
 
             if (responseMessage.IsSuccessStatusCode) {
-                string str = await responseMessage.Content.ReadAsStringAsync();
+                responseMessage.Dispose();
             } else {
                 throw new Exception($"The service returned an error: {responseMessage.StatusCode}");
             }
