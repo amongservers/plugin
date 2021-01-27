@@ -2,10 +2,13 @@
 using Impostor.Api.Events.Managers;
 using Impostor.Api.Plugins;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,69 +23,64 @@ namespace AmongServers.Plugin
     {
         #region Fields
         private readonly ILogger<AmongServersPlugin> _logger;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IEventManager _eventManager;
         private readonly IConfiguration _configuration;
-        private APIClient _client;
+        private HeartbeatService _heartbeat;
         private IDisposable _unregister;
         #endregion
 
-        public override ValueTask EnableAsync()
+        public override async ValueTask EnableAsync()
         {
-            _logger.LogInformation("Example is being enabled.");
+            _logger.LogInformation("Enabling AmongServers plugin");
 
-            // Try to get the name from the config file
-            string serverName = _configuration.GetSection("Server")["Name"];
-            if (string.IsNullOrEmpty(serverName))
-                serverName = "Awesome Among Us Server!";
-            int port = int.Parse(_configuration.GetSection("Server")["PublicPort"]);
+            var serverConfig = _configuration.GetSection("Server");
 
-            // Create client.
-            _client = new APIClient(serverName, port);
+            // get the server name
+            string serverName = serverConfig.GetSection("Name").Exists() ? serverConfig["Name"] : null;
+
+            // get the endpoint data
+            IPAddress publicAddress = null;
+
+            if (serverConfig.GetSection("PublicIp").Exists()) {
+                if (!IPAddress.TryParse(serverConfig["PublicIp"], out publicAddress))
+                    _logger?.LogWarning("The public IP format is invalid, falling back to auto-IP detection");
+            }
+
+            int publicPort = int.Parse(_configuration.GetSection("Server")["PublicPort"]);
+
+            // create the heartbeat service
+            _heartbeat = ActivatorUtilities.CreateInstance<HeartbeatService>(_serviceProvider);
+
+            // configure details
+            if (!string.IsNullOrEmpty(serverName))
+                _heartbeat.ServerName = serverName;
+
+            _heartbeat.ServerEndpoint = new IPEndPoint(publicAddress ?? IPAddress.Any, publicPort);
 
             // Register events
-            _unregister = _eventManager.RegisterListener(new GameEventListener(_logger, _client));
+            _unregister = _eventManager.RegisterListener(new GameEventListener(_logger, _heartbeat));
 
-            // Startup the servers heartbeat every 30 seconds.
-            Thread t = new Thread(RunHeartbeat);
-            t.Start();
-
-            return default;
+            // start the heartbeat
+            await _heartbeat.StartAsync();
         }
 
-        public override ValueTask DisableAsync()
+        public override async ValueTask DisableAsync()
         {
-            _logger.LogInformation("Example is being disabled.");
-            // Add the line below!
+            _logger.LogInformation("Disabling AmongServers plugin");
+
+            // dispose the event listener
             _unregister.Dispose();
-            return default;
-        }
 
-        /// <summary>
-        /// Runs the servers heartbeat.
-        /// </summary>
-        /// <returns></returns>
-        private async void RunHeartbeat()
-        {
-            _logger?.LogInformation("Starting Among Servers Heatbeat...");
-            while (_unregister != null)
-            {
-                try
-                {
-                    await _client.SendHeartbeatAsync().ConfigureAwait(false);
-                    await Task.Delay(5000);
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogCritical($"Failed to send heartbeat: {ex.Message}");
-                }
-            };
-            _logger?.LogInformation("Stopping Among Servers Heatbeat...");
+            // stop heartbeat
+            await _heartbeat.DisposeAsync();
         }
 
         #region Constructor
-        public AmongServersPlugin(ILogger<AmongServersPlugin> logger, IEventManager eventManager, IConfiguration configuration)
+        public AmongServersPlugin(ILogger<AmongServersPlugin> logger, IEventManager eventManager, IConfiguration configuration, IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
             _eventManager = eventManager;
             _configuration = configuration;
         }

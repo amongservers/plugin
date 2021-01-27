@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +16,7 @@ namespace AmongServers.Plugin.Handlers
     {
         #region Fields
         private readonly ILogger<AmongServersPlugin> _logger;
-        private readonly APIClient _client;
-        private string _name;
+        private HeartbeatService _heartbeat;
         #endregion
 
         #region Methods
@@ -25,11 +26,11 @@ namespace AmongServers.Plugin.Handlers
         /// <param name="e"></param>
         /// <returns></returns>
         [EventListener]
-        public async ValueTask OnGameCreated(IGameCreatedEvent e)
+        public ValueTask OnGameCreated(IGameCreatedEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of new lobby: {response.StatusCode}");
+            //TODO: created game
+            _heartbeat.TryHeartbeat();
+            return default;
         }
 
         /// <summary>
@@ -37,11 +38,11 @@ namespace AmongServers.Plugin.Handlers
         /// </summary>
         /// <param name="e"></param>
         [EventListener]
-        public async ValueTask OnGameStarted(IGameStartedEvent e)
+        public ValueTask OnGameStarted(IGameStartedEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of game start: {response.StatusCode}");
+            //TODO: update game
+            _heartbeat.TryHeartbeat();
+            return default;
         }
 
         /// <summary>
@@ -49,11 +50,11 @@ namespace AmongServers.Plugin.Handlers
         /// </summary>
         /// <param name="e"></param>
         [EventListener]
-        public async ValueTask OnGameEnded(IGameEndedEvent e)
+        public ValueTask OnGameEnded(IGameEndedEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of game end: {response.StatusCode}");
+            //TODO: remove game
+            _heartbeat.TryHeartbeat();
+            return default;
         }
 
         /// <summary>
@@ -61,11 +62,11 @@ namespace AmongServers.Plugin.Handlers
         /// </summary>
         /// <param name="e"></param>
         [EventListener]
-        public async ValueTask OnGameDestroyed(IGameDestroyedEvent e)
+        public ValueTask OnGameDestroyed(IGameDestroyedEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of game destory: {response.StatusCode}");
+            //TODO: remove game if not already removed by ending
+            _heartbeat.TryHeartbeat();
+            return default;
         }
 
         /// <summary>
@@ -73,11 +74,11 @@ namespace AmongServers.Plugin.Handlers
         /// </summary>
         /// <param name="e"></param>
         [EventListener]
-        public async ValueTask OnPlayerJoined(IGamePlayerJoinedEvent e)
+        public ValueTask OnPlayerJoined(IGamePlayerJoinedEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of player joined: {response.StatusCode}");
+            //TODO: update player count on game
+            _heartbeat.TryHeartbeat();
+            return default;
         }
 
         /// <summary>
@@ -85,19 +86,19 @@ namespace AmongServers.Plugin.Handlers
         /// </summary>
         /// <param name="e"></param>
         [EventListener]
-        public async ValueTask OnPlayerLeftGame(IGamePlayerLeftEvent e)
+        public ValueTask OnPlayerLeftGame(IGamePlayerLeftEvent e)
         {
-            var response = await _client.SendHeartbeatAsync(e.Game).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                _logger.LogError($"Failed to inform server of player exit: {response.StatusCode}");
+            //TODO: update player count on game
+            _heartbeat.TryHeartbeat();
+            return default;
         }
         #endregion
 
         #region Constructor
-        public GameEventListener(ILogger<AmongServersPlugin> logger, APIClient client)
+        public GameEventListener(ILogger<AmongServersPlugin> logger, HeartbeatService heartbeat)
         {
             _logger = logger;
-            _client = client;
+            _heartbeat = heartbeat;
         }
         #endregion
     }
