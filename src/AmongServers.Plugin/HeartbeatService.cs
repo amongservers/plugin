@@ -1,7 +1,12 @@
 ﻿using AmongServers.Plugin.Coordinator;
+using AmongServers.Plugin.Coordinator.Entities;
+using Impostor.Api.Games;
+using Impostor.Api.Innersloth;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -20,6 +25,7 @@ namespace AmongServers.Plugin
         private readonly ILogger _logger;
         private DateTimeOffset _nextAutomaticHeartbeat = DateTimeOffset.UtcNow;
         private Task _heartbeatTask;
+        private ConcurrentDictionary<IGame, object> _games = new ConcurrentDictionary<IGame, object>();
 
         /// <summary>
         /// The server name.
@@ -30,6 +36,24 @@ namespace AmongServers.Plugin
         /// The server endpoint.
         /// </summary>
         public IPEndPoint ServerEndpoint { get; set; }
+
+        /// <summary>
+        /// Attach a game to the heartbeat.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        public void AttachGame(IGame game)
+        {
+            _games[game] = null;
+        }
+
+        /// <summary>
+        /// Detach a game from the heartbeat.
+        /// </summary>
+        /// <param name="game">The game.</param>
+        public void DetachGame(IGame game)
+        {
+            _games.TryRemove(game, out _);
+        }
 
         /// <summary>
         /// Dispose the heartbeat service.
@@ -56,7 +80,18 @@ namespace AmongServers.Plugin
                 await _client.HeartbeatAsync(new Coordinator.Entities.HeartbeatEntity() {
                     Name = ServerName,
                     Endpoint = ServerEndpoint.ToString(),
-                    Games = new Coordinator.Entities.GameEntity[0]
+                    Games = _games.Keys.Where(g => g.GameState == GameStates.Started || g.GameState == GameStates.Starting || g.GameState == GameStates.NotStarted)
+                        .Select(s => new GameEntity() {
+                            IsPublic = s.IsPublic,
+                            Map = s.Options.Map.ToString().ToLower(),
+                            State = s.GameState.ToString().ToLower(),
+                            NumImposters = s.Options.NumImpostors,
+                            MaxPlayers = s.Options.MaxPlayers,
+                            CountPlayers = s.PlayerCount,
+                            Players = s.IsPublic && s.Players != null ? s.Players.Select(p => new PlayerEntity() {
+                                Name = p.Character.PlayerInfo.PlayerName
+                            }).ToArray() : Array.Empty<PlayerEntity>()
+                        }).ToArray()
                 }, _cancellationSource.Token);
             } catch (Exception ex) {
                 _logger?.LogDebug(ex, "Failed to send the heartbeat");

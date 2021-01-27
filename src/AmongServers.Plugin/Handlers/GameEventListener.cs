@@ -40,7 +40,7 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnGameStarted(IGameStartedEvent e)
         {
-            //TODO: update game
+            _heartbeat.AttachGame(e.Game);
             _heartbeat.TryHeartbeat();
             return default;
         }
@@ -52,7 +52,7 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnGameEnded(IGameEndedEvent e)
         {
-            //TODO: remove game
+            _heartbeat.DetachGame(e.Game);
             _heartbeat.TryHeartbeat();
             return default;
         }
@@ -64,7 +64,7 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnGameDestroyed(IGameDestroyedEvent e)
         {
-            //TODO: remove game if not already removed by ending
+            _heartbeat.DetachGame(e.Game); // incase the game didn't "end"
             _heartbeat.TryHeartbeat();
             return default;
         }
@@ -76,7 +76,6 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnPlayerJoined(IGamePlayerJoinedEvent e)
         {
-            //TODO: update player count on game
             _heartbeat.TryHeartbeat();
             return default;
         }
@@ -88,7 +87,6 @@ namespace AmongServers.Plugin.Handlers
         [EventListener]
         public ValueTask OnPlayerLeftGame(IGamePlayerLeftEvent e)
         {
-            //TODO: update player count on game
             _heartbeat.TryHeartbeat();
             return default;
         }

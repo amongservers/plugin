@@ -43,7 +43,19 @@ namespace AmongServers.Plugin.Coordinator.Entities
         public int NumImposters { get; set; }
 
         /// <summary>
-        /// The players.
+        /// If the game is public.
+        /// </summary>
+        [JsonPropertyName("isPublic")]
+        public bool IsPublic { get; set; }
+
+        /// <summary>
+        /// The game host, this will be null if the game is private.
+        /// </summary>
+        [JsonPropertyName("hostPlayer")]
+        public PlayerEntity Host { get; set; }
+
+        /// <summary>
+        /// The players, this array will be empty if the game is private.
         /// </summary>
         [JsonPropertyName("players")]
         public PlayerEntity[] Players { get; set; }
