@@ -103,7 +103,7 @@ namespace AmongServers.Plugin
             }
         }
 
-        private bool InternalTryHeartbeat()
+        private bool TryHeartbeatInternal()
         {
             if (!_semaphore.Wait(0))
                 return false;
@@ -129,7 +129,7 @@ namespace AmongServers.Plugin
                 return false;
             }
 
-            return InternalTryHeartbeat();
+            return TryHeartbeatInternal();
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace AmongServers.Plugin
         private async Task RunHeartbeatAsync()
         {
             while(!_cancellationSource.IsCancellationRequested) {
-                TryHeartbeat();
+                TryHeartbeatInternal();
 
                 try {
                     _nextAutomaticHeartbeat = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(30);
