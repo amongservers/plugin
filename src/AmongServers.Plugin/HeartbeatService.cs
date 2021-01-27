@@ -113,7 +113,7 @@ namespace AmongServers.Plugin
             }
         }
 
-        internal HeartbeatService(ILogger<HeartbeatService> logger) {
+        public HeartbeatService(ILogger<HeartbeatService> logger) {
             _client = new ApiClient(Constants.ApiUrl);
             _logger = logger;
         }
