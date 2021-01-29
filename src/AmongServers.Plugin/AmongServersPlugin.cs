@@ -18,7 +18,7 @@ namespace AmongServers.Plugin
         package: "AmongServers.Plugin",
         name: "Among Servers",
         author: "Among Servers",
-        version: "1.0.0")]
+        version: "0.1.3")]
     public class AmongServersPlugin : PluginBase
     {
         #region Fields
