@@ -14,7 +14,7 @@ namespace AmongServers.Plugin
         /// <summary>
         /// The application version.
         /// </summary>
-        public const string ApplicationVersion = "0.1.0";
+        public const string ApplicationVersion = "0.1.2";
 
         /// <summary>
         /// The API url.
