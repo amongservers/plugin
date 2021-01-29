@@ -36,6 +36,12 @@ namespace AmongServers.Plugin
 
             var serverConfig = _configuration.GetSection("Server");
 
+            if (serverConfig.GetSection("EnableAmongServers").Exists() && bool.TryParse(serverConfig["EnableAmongServers"], out bool result) && !result)
+            {
+                _logger.LogInformation("AmongServers plugin is disabled via config.");
+                return;
+            }
+
             // get the server name
             string serverName = serverConfig.GetSection("Name").Exists() ? serverConfig["Name"] : null;
 
